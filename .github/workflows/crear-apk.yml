@@ -1,0 +1,28 @@
+name: Crear APK de prueba
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  android:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+      - name: Abrir el proyecto
+        shell: pwsh
+        run: Expand-Archive LectorGlobo-0.1.zip -DestinationPath proyecto
+      - name: Compilar APK
+        working-directory: proyecto/LectorGlobo
+        run: gradle --no-daemon assembleDebug
+      - uses: actions/upload-artifact@v4
+        with:
+          name: LectorGlobo-Android
+          path: proyecto/LectorGlobo/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
